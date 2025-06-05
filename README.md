@@ -83,11 +83,11 @@ Each App has an `About` tab describing the given App and its usage.
 
 ### Prosumer Camera IDT Archive
 
-The IDT App for Prosumer Cameras requires a Zip archive file, i.e. IDT archive, with a specific structure and content.
+The IDT App for Prosumer Cameras requires a Zip archive file, with a specific structure and content. The application supports all type of images directly supported by OpenImageIO (OIIO), such as DPX, EXR, TIFF, JPEG, PNGs, etc.
 
 ### Explicit Specification
 
-The explicit specification of the IDT archive requires a root JSON file describing the paths to the various image sequences.
+The explicit specification of the IDT archive requires a root JSON file describing the paths to the various image sequences. This JSON file is automatically created when using the webapp UI, or it needs to be manually provided when working directly with the API.
 
 ![IDT Archive Explicit Structure](docs/_static/idt_archive_explicit_structure.png)
 
@@ -204,6 +204,37 @@ The implicit specification cannot represent some of the metadata that the explic
 It is also possible to use floating point exposure values by naming the directories accordingly:
 
 ![IDT Archive Implicit Structure - Floating Point Values](docs/_static/idt_archive_implicit_structure_fractional_ev.png)
+
+There are many ways to compute your relative EVs, according to what camera settings you have changed. However, if you have only changed your shutter speed and/or your FPS, you can calculate your relative EV values with the following formula:
+```
+LOG((POW(1,2)/(CLIP-SHUTTER-SPEED/BASE-SHUTTER-SPEED)),2)
+```
+So for clips where the base shutter speed is 1/100 and the other exposures are: 
+1/50
+1/25
+1/250
+1/500
+1/1000
+The resulting EVs would be:
+
+```
+For 1/100 (BASE)
+LOG((POW(1,2)/(100/100)),2) = 0.00
+For 1/50
+LOG((POW(1,2)/(50/100)),2) = 1.00
+For 1/25
+LOG((POW(1,2)/(25/100)),2) = 2.00
+For 1/250
+LOG((POW(1,2)/(250/100)),2) = -1.32
+For 1/500
+LOG((POW(1,2)/(500/100)),2) = -2.32
+For 1/1000
+LOG((POW(1,2)/(1000/100)),2) = -3.32
+```
+
+#### White and Black clips (OPTIONAL)
+
+If white and black clips are captured, these should be placed in folders named respectively **BLACK** or **WHITE**, inside the **data** folder, next to **colour_checker** and **grey_card**.
 
 ## License
 
